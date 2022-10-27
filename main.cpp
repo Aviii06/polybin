@@ -79,15 +79,8 @@ void loadOBJ(const std::string file_name, std::vector<std::vector<float>>& meshV
 }
 
 void mySubroutine(int& i) {
-    i++;
-
     std::vector<std::vector<float>> meshVerts;
     std::vector<std::vector<unsigned int>> meshFaces;
-
-    if( i > numberOfFiles) 
-    {
-        i = 0;
-    }
 
     std::string file_name = fileNameArg + "/" + std::to_string(i) + ".obj";
 
@@ -103,13 +96,17 @@ void myCallback() {
     // we can immediately start using ImGui commands to build a UI
 
     ImGui::PushItemWidth(100); // Make ui elements 100 pixels wide,
-
-    if (ImGui::Button("Next")) {
+    // To go to previous frame
+    if (ImGui::Button("Previous")) {
+        i--;
         mySubroutine(i);
     }
 
+    // Toggle play and pause
+    ImGui::SameLine();
     if(toggle)
     {
+        i++;
         mySubroutine(i);
 
         if (ImGui::Button("Pause")) {
@@ -119,16 +116,35 @@ void myCallback() {
 
     else {
         if (ImGui::Button("Play")) {
+            i++;
             toggle = true;
         }
     }
 
+    // To go to next frame
     ImGui::SameLine();
+    if (ImGui::Button("Next")) {
+        i++;
+        mySubroutine(i);
+    }
+
+    // To go to frame 1
+    ImGui::SameLine();
+    if (ImGui::Button("Reset")) {
+        i = 0;
+        mySubroutine(i);
+    }
+
     if (ImGui::Button(std::string("Current: " + std::to_string(i)).c_str())) {
         polyscope::warning("hi");
     }
 
     ImGui::PopItemWidth();
+
+    if( i > numberOfFiles || i < 0) 
+    {
+        i = 0;
+    }
 }
 
 
@@ -139,6 +155,10 @@ int main(int argc, char *argv[])
     fileNameArg = std::string(argv[1]);
     numberOfFiles = std::atoi(argv[2]);
     toggle = false;
+
+    polyscope::options::automaticallyComputeSceneExtents = false;
+	polyscope::state::lengthScale = 1.;
+	polyscope::state::boundingBox = std::tuple<glm::vec3, glm::vec3> { { -1., -3., -1. }, { 1., 1., 1. } };
 
     polyscope::state::userCallback = myCallback;
 

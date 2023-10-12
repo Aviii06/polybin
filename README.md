@@ -6,7 +6,7 @@ git submodule update --init --recursive
 mkdir build
 cd build
 cmake ..
-cmake --build . -j $(nproc)
+cmake --build . -j 8
 ```
 
 # Run
